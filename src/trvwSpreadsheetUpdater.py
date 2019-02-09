@@ -1,3 +1,4 @@
+import argparse
 import sys
 from datetime import datetime
 
@@ -10,7 +11,7 @@ from trvwCSVdownloader import TradingviewBot
 
 
 class SpreadsheetUpdater():
-    def __init__(self, pair):
+    def __init__(self):
         scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
         creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
         self.client = gspread.authorize(creds)
@@ -20,18 +21,16 @@ class SpreadsheetUpdater():
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')
 
-        self.pair = pair
-
     # one line method...
     def openNewSheet(self):
         return self.client.open("tradehistory of cryptoscreener").sheet1
 
     def searchAndCopy(self, newSheet):
-        print 'now inserting all the found values'
+        print('now inserting all the found values')
         sheet = self.sheet.sheet1
         data = sheet.findall(self.pair)
 
-        print data
+        print(data)
 
         i = 0
         for cell in data:
@@ -49,18 +48,20 @@ class SpreadsheetUpdater():
         content = FileManager.mergeCSVFiles().read()
 
         sheet = self.client.open('cryptoscreener')
-        print sheet
+        print(sheet)
         self.client.import_csv(sheet.id, content)
 
 
-sUpdater = SpreadsheetUpdater(sys.argv[1])
 bot = TradingviewBot()
-bot.signIn()
-bot.downloadAll()
-
-sUpdater.putFilesInGoogleSheets()
-newSheet = sUpdater.openNewSheet()
-sUpdater.searchAndCopy(newSheet)
-
-# FileManager.removeOldFiles()
+print(bot.args['pair'])
+sUpdater = SpreadsheetUpdater()
+# bot.signIn()
+# bot.downloadAll()
+#
+# sUpdater.putFilesInGoogleSheets()
+# newSheet = sUpdater.openNewSheet()
+# sUpdater.searchAndCopy(newSheet)
+print(bot.args['no_delete'])
+if bot.args['no_delete']:
+    FileManager.removeOldFiles(None)
 

@@ -1,6 +1,6 @@
 # login to trading view
 # download several timeframes
-
+import argparse
 import time
 
 import configparser
@@ -21,13 +21,24 @@ class TradingviewBot():
 
         self.browser = webdriver.Chrome(ChromeDriverManager().install())
 
+        # argument parser:
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--pair', required=True)
+        parser.add_argument('--no-delete', action='store_true')
+
+        args = parser.parse_args()
+
+        self.args = vars(args)
+
+        print('Query string:', args)
+
     # Sign in to TradingView
     def signIn(self):
         self.browser.get('https://www.tradingview.com/#signin')
 
         time.sleep(0.5 * self.SPEEDFACTOR)
 
-        print self.browser.find_elements_by_css_selector('#signin-form input')
+        print(self.browser.find_elements_by_css_selector('#signin-form input'))
         emailInput = self.browser.find_elements_by_css_selector('#signin-form input')[0]
         passwordInput = self.browser.find_elements_by_css_selector('#signin-form input')[1]
 
@@ -54,7 +65,7 @@ class TradingviewBot():
             time.sleep(2 * self.SPEEDFACTOR)
 
         intervalDropdown = self.browser.find_elements_by_xpath('//*[@id="js-screener-container"]/div[2]/div[7]/div[2]')[0]
-        print intervalDropdown
+        print(intervalDropdown)
         intervalDropdown.click()
         time.sleep(1 * self.SPEEDFACTOR)
 
@@ -70,11 +81,11 @@ class TradingviewBot():
     def downloadAll(self):
         refreshFlag = True
         for i in range (2, 9):
-            print i
-            bot.download(i, refreshFlag)
+            print(i)
+            self.download(i, refreshFlag)
             refreshFlag = False
 
 
-bot = TradingviewBot()
+# bot = TradingviewBot()
 # bot.signIn()
 # bot.downloadAll()
