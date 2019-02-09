@@ -7,7 +7,7 @@ import argparse
 # The filemanager copies files to other locations and is able to remove old files.
 import configparser
 
-
+# todo: make abstract
 class FileManager():
     def __init__(self):
         self.config = configparser.ConfigParser()
@@ -24,14 +24,13 @@ class FileManager():
         downlLocation = self.config['DEFAULT']['download_location'] + filename
         moveToLocation = self.config['COPY']['move_to_location']
 
-        shutil.copyfile(downlLocation + str('.csv'), moveToLocation + self.config['COPY']['0'] + filename + str('.csv'))
+        shutil.copyfile(downlLocation + str('.csv'), moveToLocation + self.config['COPY']['0'] + self.config['COPY']['filename'] + ".csv")
 
         for i in range (1, 7):
             frm = downlLocation + ' (' + str(i) + ").csv"
-            to = moveToLocation + self.config['COPY'][str(i)] + filename + ".csv"
+            to = moveToLocation + self.config['COPY'][str(i)] + self.config['COPY']['filename'] + ".csv"
             shutil.copyfile(frm, to)
 
-    @abstractmethod
     def mergeCSVFiles(self):
         print('going to merge csv files...')
         filename = 'crypto_' + str(date.today())
@@ -70,24 +69,25 @@ class FileManager():
 
         return open('out.csv', 'r')
 
-    @abstractmethod
     def removeOldFiles(self):
         print('going to merge csv files...')
         filename = 'crypto_' + str(date.today())
         path = self.config['DEFAULT']['DOWNLOAD_LOCATION'] + filename
 
-        os.remove(path + str('.csv'))
+        try:
+            os.remove(path + str('.csv'))
+        except:
+            print('file not found - cannot remove or other exception')
+            print(path + ".csv")
 
         # now the rest:
         for num in range(1, 7):
             print(num)
             try:
-                os.remove(open(path + ' (' + str(num) + ").csv"))
+                os.remove(path + ' (' + str(num) + ").csv")
             except:
                 print('file not found - cannot remove or other exception')
                 print(path + ' (' + str(num) + ").csv")
-                pass
-
 
     #### helper function / leftover.......
     ###
@@ -106,6 +106,7 @@ class FileManager():
 
 
 
-manager = FileManager()
-manager.mergeCSVFiles()
-# manager.moveDownloadedFilesToFolder()
+# manager = FileManager()
+# # manager.mergeCSVFiles()
+# # manager.moveDownloadedFilesToFolder()
+# manager.removeOldFiles()
